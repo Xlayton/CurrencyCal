@@ -32,7 +32,7 @@ export default function Tasks(props) {
     }
     setChecked(newChecked);
   };
-  const { tasksIndexes, tasks, rtlActive } = props;
+  const { tasksIndexes, tasks, rtlActive, link } = props;
   const tableCellClasses = classnames(classes.tableCell, {
     [classes.tableCellRTL]: rtlActive
   });
@@ -55,6 +55,7 @@ export default function Tasks(props) {
               />
             </TableCell>
             <TableCell className={tableCellClasses}>{tasks[value]}</TableCell>
+            {link ? <a href={link}>Click here for user agreement</a> : null}
             <TableCell className={classes.tableActions}>
               <Tooltip
                 id="tooltip-top"

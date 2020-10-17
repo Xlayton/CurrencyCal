@@ -83,7 +83,7 @@ export default function Sidebar(props) {
   var brand = (
     <div className={classes.logo}>
       <a
-        href="https://www.creative-tim.com?ref=mdr-sidebar"
+        href="https://github.com/Xlayton/CurrencyCal"
         className={classNames(classes.logoLink, {
           [classes.logoLinkRTL]: props.rtlActive
         })}
@@ -96,6 +96,9 @@ export default function Sidebar(props) {
       </a>
     </div>
   );
+
+  //This is the side (navbar) on the left side
+
   return (
     <div>
       <Hidden mdUp implementation="css">

@@ -34,6 +34,9 @@ export default function Header(props) {
   const appBarClasses = classNames({
     [" " + classes[color]]: color
   });
+
+  //This is the top part of the web page
+
   return (
     <AppBar className={classes.appBar + appBarClasses}>
       <Toolbar className={classes.container}>

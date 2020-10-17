@@ -15,6 +15,9 @@ const useStyles = makeStyles(styles);
 export default function CustomTable(props) {
   const classes = useStyles();
   const { tableHead, tableData, tableHeaderColor } = props;
+
+  //This removes the employee stats table, so this populates the employee chart for the table page?
+
   return (
     <div className={classes.tableResponsive}>
       <Table className={classes.table}>

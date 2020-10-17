@@ -47,6 +47,9 @@ export default function AdminNavbarLinks() {
   const handleCloseProfile = () => {
     setOpenProfile(null);
   };
+
+  //This is the top part of the web page with the profile icon and search bar
+
   return (
     <div>
       <div className={classes.searchWrapper}>

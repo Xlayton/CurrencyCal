@@ -12,6 +12,8 @@ import styles from "assets/jss/material-dashboard-react/components/snackbarConte
 
 const useStyles = makeStyles(styles);
 
+//not a clue
+
 export default function Snackbar(props) {
   const classes = useStyles();
   const { message, color, close, icon, place, open, rtlActive } = props;
