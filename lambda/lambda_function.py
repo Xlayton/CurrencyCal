@@ -15,7 +15,7 @@ from ask_sdk_core.handler_input import HandlerInput
 from ask_sdk_model import Response
 from ask_sdk_s3.adapter import S3Adapter
 
-SKILL_NAME = 'High Low Game'
+SKILL_NAME = 'Budget Buddy'
 bucket_name = os.environ.get('S3_PERSISTENCE_BUCKET')
 s3_client = boto3.client('s3',
                          region_name=os.environ.get('S3_PERSISTENCE_REGION'),
@@ -27,25 +27,23 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
+
+
 @sb.request_handler(can_handle_func=is_request_type("LaunchRequest"))
 def launch_request_handler(handler_input):
-    """Handler for Skill Launch.
-
-    Get the persistence attributes, to figure out the game state.
-    """
+    #Handler for Skill Launch.
     # type: (HandlerInput) -> Response
     attr = handler_input.attributes_manager.persistent_attributes
     if not attr:
         attr['ended_session_count'] = 0
-        attr['games_played'] = 0
-        attr['game_state'] = 'ENDED'
+        attr['conversation_state'] = 'ENDED'
 
     handler_input.attributes_manager.session_attributes = attr
 
     speech_text = (
-        "Welcome to the High Low guessing game. You have played {} times. "
-        "Would you like to play?".format(attr["games_played"]))
-    reprompt = "Say yes to start the game or no to quit."
+        "Hi im currency Kal. My job is to help you with your spending. What more do we want for description"
+        "Would you like to talk about spending?")
+    reprompt = "Say yes to continue talking to Kal abount spending"
 
     handler_input.response_builder.speak(speech_text).ask(reprompt)
     return handler_input.response_builder.response
@@ -56,10 +54,8 @@ def help_intent_handler(handler_input):
     """Handler for Help Intent."""
     # type: (HandlerInput) -> Response
     speech_text = (
-        "I am thinking of a number between zero and one hundred, try to "
-        "guess it and I will tell you if you got it or it is higher or "
-        "lower")
-    reprompt = "Try saying a number."
+       "Im currency Kal I can help you with your spending but first we need to create an account")
+    reprompt = "Try saying login"
 
     handler_input.response_builder.speak(speech_text).ask(reprompt)
     return handler_input.response_builder.response
@@ -72,7 +68,7 @@ def help_intent_handler(handler_input):
 def cancel_and_stop_intent_handler(handler_input):
     """Single handler for Cancel and Stop Intent."""
     # type: (HandlerInput) -> Response
-    speech_text = "Thanks for playing!!"
+    speech_text = "Thanks for using Budget Buddy!!"
 
     handler_input.response_builder.speak(
         speech_text).set_should_end_session(True)
@@ -95,8 +91,8 @@ def currently_playing(handler_input):
     is_currently_playing = False
     session_attr = handler_input.attributes_manager.session_attributes
 
-    if ("game_state" in session_attr
-            and session_attr['game_state'] == "STARTED"):
+    if ("conversation_state" in session_attr
+            and session_attr['conversation_state'] == "STARTED"):
         is_currently_playing = True
 
     return is_currently_playing
@@ -111,12 +107,12 @@ def yes_handler(handler_input):
     """
     # type: (HandlerInput) -> Response
     session_attr = handler_input.attributes_manager.session_attributes
-    session_attr['game_state'] = "STARTED"
+    session_attr['conversation_state'] = "STARTED"
     session_attr['guess_number'] = random.randint(0, 100)
     session_attr['no_of_guesses'] = 0
 
-    speech_text = "Great! Try saying a number to start the game."
-    reprompt = "Try saying a number."
+    speech_text = "Great! Try saying something to Kal if you arent already logged in"
+    reprompt = "Try saying Register or login or if your already logged in try saying what is my balance"
 
     handler_input.response_builder.speak(speech_text).ask(reprompt)
     return handler_input.response_builder.response
@@ -131,7 +127,7 @@ def no_handler(handler_input):
     """
     # type: (HandlerInput) -> Response
     session_attr = handler_input.attributes_manager.session_attributes
-    session_attr['game_state'] = "ENDED"
+    session_attr['conversation_state'] = "ENDED"
     session_attr['ended_session_count'] += 1
 
     handler_input.attributes_manager.persistent_attributes = session_attr
@@ -143,45 +139,7 @@ def no_handler(handler_input):
     return handler_input.response_builder.response
 
 
-@sb.request_handler(can_handle_func=lambda input:
-                    currently_playing(input) and
-                    is_intent_name("NumberGuessIntent")(input))
-def number_guess_handler(handler_input):
-    """Handler for processing guess with target."""
-    # type: (HandlerInput) -> Response
-    session_attr = handler_input.attributes_manager.session_attributes
-    target_num = session_attr["guess_number"]
-    guess_num = int(handler_input.request_envelope.request.intent.slots[
-        "number"].value)
 
-    session_attr["no_of_guesses"] += 1
-
-    if guess_num > target_num:
-        speech_text = (
-            "{} is too high. Try saying a smaller number.".format(guess_num))
-        reprompt = "Try saying a smaller number."
-    elif guess_num < target_num:
-        speech_text = (
-            "{} is too low. Try saying a larger number.".format(guess_num))
-        reprompt = "Try saying a larger number."
-    elif guess_num == target_num:
-        speech_text = (
-            "Congratulations. {} is the correct guess. "
-            "You guessed the number in {} guesses. "
-            "Would you like to play a new game?".format(
-                guess_num, session_attr["no_of_guesses"]))
-        reprompt = "Say yes to start a new game or no to end the game"
-        session_attr["games_played"] += 1
-        session_attr["game_state"] = "ENDED"
-
-        handler_input.attributes_manager.persistent_attributes = session_attr
-        handler_input.attributes_manager.save_persistent_attributes()
-    else:
-        speech_text = "Sorry, I didn't get that. Try saying a number."
-        reprompt = "Try saying a number."
-
-    handler_input.response_builder.speak(speech_text).ask(reprompt)
-    return handler_input.response_builder.response
 
 
 @sb.request_handler(can_handle_func=lambda input:
@@ -196,19 +154,19 @@ def fallback_handler(handler_input):
     # type: (HandlerInput) -> Response
     session_attr = handler_input.attributes_manager.session_attributes
 
-    if ("game_state" in session_attr and
-            session_attr["game_state"]=="STARTED"):
+    if ("conversation_state" in session_attr and
+            session_attr["conversation_state"]=="STARTED"):
         speech_text = (
-            "The {} skill can't help you with that.  "
-            "Try guessing a number between 0 and 100. ".format(SKILL_NAME))
-        reprompt = "Please guess a number between 0 and 100."
+            "Sorry {}  can't help you with that.  "
+            "Try asking for help from Kal".format(SKILL_NAME))
+        reprompt = "Please ask for help from budget buddy"
     else:
         speech_text = (
             "The {} skill can't help you with that.  "
             "It will come up with a number between 0 and 100 and "
             "you try to guess it by saying a number in that range. "
-            "Would you like to play?".format(SKILL_NAME))
-        reprompt = "Say yes to start the game or no to quit."
+            "Would you like some help from budget buddy?".format(SKILL_NAME))
+        reprompt = "Say yes to start communicating with our assistant Kal"
 
     handler_input.response_builder.speak(speech_text).ask(reprompt)
     return handler_input.response_builder.response
@@ -218,7 +176,7 @@ def fallback_handler(handler_input):
 def unhandled_intent_handler(handler_input):
     """Handler for all other unhandled requests."""
     # type: (HandlerInput) -> Response
-    speech = "Say yes to continue or no to end the game!!"
+    speech = "Say yes to continue or no to end the conversation!!"
     handler_input.response_builder.speak(speech).ask(speech)
     return handler_input.response_builder.response
 

@@ -5,7 +5,11 @@
       "intents": [
         {
           "name": "AMAZON.CancelIntent",
-          "samples": []
+          "samples": [
+            "please cancel",
+            "i want to cancel",
+            "cancel "
+          ]
         },
         {
           "name": "AMAZON.HelpIntent",
@@ -13,11 +17,31 @@
         },
         {
           "name": "AMAZON.StopIntent",
-          "samples": []
+          "samples": [
+            "I dont want to talk to Kal.",
+            "close conversation with Kal",
+            "stop talking ",
+            "please stop"
+          ]
         },
         {
           "name": "AMAZON.YesIntent",
-          "samples": []
+          "samples": [
+            "youve got my approval",
+            "yes sir",
+            "yes indeed",
+            "yes thanks",
+            "thats right",
+            "yeah",
+            "yup",
+            "yeah brother",
+            "hell yeah",
+            "yes please",
+            "indeed",
+            "sure",
+            "yep",
+            "yes"
+          ]
         },
         {
           "name": "AMAZON.FallbackIntent",
@@ -25,26 +49,118 @@
         },
         {
           "name": "AMAZON.NoIntent",
-          "samples": []
-        },
-        {
-          "name": "NumberGuessIntent",
-          "slots": [
-            {
-              "name": "number",
-              "type": "AMAZON.NUMBER"
-            }
-          ],
           "samples": [
-            "{number}",
-            "is it {number}",
-            "how about {number}",
-            "could be {number}"
+            "no thank you",
+            "no",
+            "nah bruh",
+            "nope"
           ]
         },
         {
           "name": "AMAZON.NavigateHomeIntent",
           "samples": []
+        },
+        {
+          "name": "accountID",
+          "slots": [],
+          "samples": [
+            "account identifier",
+            "id account",
+            "account id"
+          ]
+        },
+        {
+          "name": "accountpinintent",
+          "slots": [
+            {
+              "name": "number",
+              "type": "AMAZON.FOUR_DIGIT_NUMBER"
+            }
+          ],
+          "samples": [
+            "set pin {number}"
+          ]
+        },
+        {
+          "name": "Registerintent",
+          "slots": [],
+          "samples": [
+            "register me",
+            "registering an account",
+            "account registrar",
+            "account registration",
+            "i need to register my account",
+            "take me to registration",
+            "registration",
+            "help me register",
+            "i need to register",
+            "register",
+            "register new user"
+          ]
+        },
+        {
+          "name": "Loginintent",
+          "slots": [],
+          "samples": [
+            "log me in coach",
+            "already registered",
+            "use login",
+            "log me in",
+            "already have an account",
+            "login an existing user",
+            "existing user login",
+            "login"
+          ]
+        },
+        {
+          "name": "checkbalanceintent",
+          "slots": [],
+          "samples": [
+            "how much money",
+            "what is my balance",
+            "check my balance"
+          ]
+        },
+        {
+          "name": "sendmoneyintent",
+          "slots": [
+            {
+              "name": "x",
+              "type": "AMAZON.NUMBER"
+            },
+            {
+              "name": "user",
+              "type": "AMAZON.FirstName"
+            }
+          ],
+          "samples": [
+            "send {x} dollars to {user}",
+            "send money"
+          ]
+        },
+        {
+          "name": "requestmoneyintent",
+          "slots": [
+            {
+              "name": "x",
+              "type": "AMAZON.NUMBER"
+            },
+            {
+              "name": "user",
+              "type": "AMAZON.FirstName"
+            }
+          ],
+          "samples": [
+            "request {x} dollars from {user}",
+            "request money"
+          ]
+        },
+        {
+          "name": "transactionhistoryintent",
+          "slots": [],
+          "samples": [
+            "show transaction history"
+          ]
         }
       ],
       "types": [],
@@ -55,5 +171,5 @@
       }
     }
   },
-  "version": "4"
+  "version": "12"
 }
