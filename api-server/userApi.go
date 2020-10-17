@@ -21,13 +21,50 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//Address represents user address
+type Address struct {
+	City    string `json:"city"`
+	State   string `json:"state"`
+	Street  string `json:"street"`
+	Unit    string `json:"unit,omitempty"`
+	ZipCode string `json:"zip_code"`
+}
+
+//ShippingAddress represents user address
+type ShippingAddress struct {
+	City    string `json:"city"`
+	State   string `json:"state"`
+	Street  string `json:"street"`
+	Unit    string `json:"unit,omitempty"`
+	ZipCode string `json:"zip_code"`
+}
+
+//Income users income data
+type Income struct {
+}
+
+//Identity users identification
+type Identity struct {
+	DOB    string `json:"date_of_birth"`
+	ID     string `json:"id"`
+	IDType string `json:"id_type"`
+}
+
 //User struct to represent a user in the db
 type User struct {
-	UUID         string `json:"uuid"`
-	Username     string `json:"username"`
-	Email        string `json:"email"`
-	PassHash     string `json:"password"`
-	ProfileImage string `json:"image"`
+	UUID            string          `json:"uuid"`
+	FirstName       string          `json:"first_name"`
+	LastName        string          `json:"last_name"`
+	PhoneNumber     string          `json:"mobile"`
+	Username        string          `json:"username"`
+	Email           string          `json:"email"`
+	PassHash        string          `json:"password"`
+	ProfileImage    string          `json:"image"`
+	Agreements      []int32         `json:"agreements"`
+	Address         Address         `json:"address"`
+	Identity        Identity        `json:"identification"`
+	Income          Income          `json:"income"`
+	ShippingAddress ShippingAddress `json:"shipping_address"`
 	//TODO Add Galileo data that matters :\
 }
 
@@ -44,7 +81,7 @@ type LoginResponse struct {
 	User    User   `json:"user"`
 }
 
-func createUser(w http.ResponseWriter, r *http.Request) {
+func uploadImage(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
 	//Checks for POST method, otherwise responds with 404
@@ -69,41 +106,37 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer file.Close()
-
-		//Gets and checks username and passwordhash to check for 0 length
-		username := r.FormValue("username")
-		password := r.FormValue("password")
-		email := r.FormValue("email")
-		if isStringEmpty(username) || isStringEmpty(password) || isStringEmpty(email) {
-			json.NewEncoder(w).Encode(GeneralResponse{400, "Please include a username, email, and password"})
-			return
-		}
-		passwordHash := hashPass([]byte(password))
-		//This chunk writes the image uploaded to machine storage to be used later
 		imageID, _ := uuid.NewUUID()
 		imageIDString := imageID.String()
 		imageFilePath := "./image/" + imageIDString + fileExt
 		io.Copy(&buf, file)
 		ioutil.WriteFile(imageFilePath, buf.Bytes(), 0644)
+		//TODO update user with image
+	}
+}
 
-		//Inserts user into DB with generated uuid
+func createUser(w http.ResponseWriter, r *http.Request) {
+	//Prepare header for json response
+	w.Header().Set("Content-Type", "application/json")
+	//Checks for POST method, otherwise responds with 404
+	if r.Method == "POST" {
+		var user User
+		err := json.NewDecoder(r.Body).Decode(&user)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		client, ctx := getDbConnection()
 		defer client.Disconnect(ctx)
 		coll := client.Database("budgetbuddy").Collection("users")
-		userID, _ := uuid.NewUUID()
-		testUser := User{userID.String(), username, email, string(passwordHash), imageFilePath[1:]}
-		_, err = coll.InsertOne(context.TODO(), testUser)
+		_, err = coll.InsertOne(context.TODO(), user)
 		if err != nil {
-			log.Fatal(err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
-		client.Disconnect(ctx)
-
-		//Writes success back
-		w.Write([]byte("Inserted"))
-	} else {
-		w.Write([]byte("404 Page not found"))
+		resp, _ := json.Marshal(GeneralResponse{200, "OK"})
+		w.Write(resp)
 	}
-	//TODO Galileo CardHolder Implementation
 }
 
 func getUser(w http.ResponseWriter, r *http.Request) {
