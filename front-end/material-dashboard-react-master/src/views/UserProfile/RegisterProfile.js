@@ -88,12 +88,12 @@ export default function RegisterProfile() {
                 <GridItem xs={12} sm={12} md={12}>
                     <Card>
                         <CardHeader color="primary">
-                            <h4 className={classes.cardTitleWhite}>Edit Profile</h4>
+                            <h4 className={classes.cardTitleWhite}>Register A Profile</h4>
                             <p className={classes.cardCategoryWhite}>Complete your profile</p>
                         </CardHeader>
                         <CardBody>
                             <GridContainer>
-                                <GridItem xs={12} sm={12} md={5}>
+                                <GridItem xs={12} sm={12} md={4}>
                                     <Input
                                         placeholder="City"
                                         id="city"
@@ -101,7 +101,7 @@ export default function RegisterProfile() {
                                         onChange={(evt) => { setCity(evt.target.value); console.log(city) }}
                                     />
                                 </GridItem>
-                                <GridItem xs={12} sm={12} md={3}>
+                                <GridItem xs={12} sm={12} md={4}>
                                     <Input
                                         placeholder="State"
                                         id="state"
@@ -117,7 +117,7 @@ export default function RegisterProfile() {
                                         onChange={(evt) => { setStreet(evt.target.value); console.log(street) }}
                                     />
                                 </GridItem>
-                                <GridItem xs={12} sm={12} md={6}>
+                                <GridItem xs={12} sm={12} md={4}>
                                     <Input
                                         placeholder="Unit"
                                         id="unit"
@@ -125,7 +125,7 @@ export default function RegisterProfile() {
                                         onChange={(evt) => { setUnit(evt.target.value); console.log(unit) }}
                                     />
                                 </GridItem>
-                                <GridItem xs={12} sm={12} md={6}>
+                                <GridItem xs={12} sm={12} md={4}>
                                     <Input
                                         placeholder="zip code"
                                         id="zip_code"
@@ -307,7 +307,7 @@ export default function RegisterProfile() {
                             </GridContainer>
                         </CardBody>
                         <CardFooter>
-                            <Button color="primary" onClick={() => { console.log('onClick'); }}>Update Profile</Button>
+                            <Button color="primary" onClick={() => { console.log('onClick'); }}>Register</Button>
                         </CardFooter>
                     </Card>
                 </GridItem>

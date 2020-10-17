@@ -19,6 +19,9 @@ export default function FixedPlugin(props) {
   const handleClick = () => {
     props.handleFixedClick();
   };
+
+  // This was that setting thing that allowed the background colors and stuff
+
   return (
     null
     // <div
