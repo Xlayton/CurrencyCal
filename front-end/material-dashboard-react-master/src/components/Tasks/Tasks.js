@@ -55,9 +55,9 @@ export default function Tasks(props) {
               />
             </TableCell>
             <TableCell className={tableCellClasses}>{tasks[value]}</TableCell>
-            {link ? <a href={link}>Click here for user agreement</a> : null}
+            {link ? <a href={link} target="_blank">Click here for user agreement</a> : null}
             <TableCell className={classes.tableActions}>
-              <Tooltip
+              {/* <Tooltip
                 id="tooltip-top"
                 title="Edit Task"
                 placement="top"
@@ -73,8 +73,8 @@ export default function Tasks(props) {
                     }
                   />
                 </IconButton>
-              </Tooltip>
-              <Tooltip
+              </Tooltip> */}
+              {/* <Tooltip
                 id="tooltip-top-start"
                 title="Remove"
                 placement="top"
@@ -90,7 +90,7 @@ export default function Tasks(props) {
                     }
                   />
                 </IconButton>
-              </Tooltip>
+              </Tooltip> */}
             </TableCell>
           </TableRow>
         ))}

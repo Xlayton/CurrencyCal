@@ -1,33 +1,20 @@
 import React, { useState } from "react";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
-import InputLabel from "@material-ui/core/InputLabel";
-import BugReport from "@material-ui/icons/BugReport";
-import Code from "@material-ui/icons/Code";
-import Cloud from "@material-ui/icons/Cloud";
 
 // core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
-import CustomInput from "components/CustomInput/CustomInput.js";
 import Input from "@material-ui/core/Input";
 import Button from "components/CustomButtons/Button.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
-import CardAvatar from "components/Card/CardAvatar.js";
 
 // @material-ui/core components
-import Table from "components/Table/Table.js";
 import Tasks from "components/Tasks/Tasks.js";
 import CustomTabs from "components/CustomTabs/CustomTabs.js";
-import Danger from "components/Typography/Danger.js";
-import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
-import CardFooter from "components/Card/CardFooter.js"
-// @material-ui/icons
-import Edit from "@material-ui/icons/Edit";
-import Close from "@material-ui/icons/Close";
-import Check from "@material-ui/icons/Check";
+import CardFooter from "components/Card/CardFooter.js";
 
 import { bugs, website, server, agreementTask, agreementUrl } from "variables/general.js";
 import avatar from "assets/img/faces/marc.jpg";
@@ -81,6 +68,8 @@ export default function RegisterProfile() {
     const [shipping_street, setShippingStreet] = useState();
     const [shipping_unit, setShippingUnit] = useState();
     const [shipping_zip_code, setShippingZipCode] = useState();
+    const [username, setUsername] = useState();
+    const [password, setPassword] = useState();
 
     return (
         <div>
@@ -175,7 +164,7 @@ export default function RegisterProfile() {
                                 </GridItem>
                                 <GridItem xs={12} sm={12} md={4}>
                                     <Input
-                                        placeholder="Id Type"
+                                        placeholder="SSN"
                                         id="id_type"
                                         value={id_type}
                                         onChange={(evt) => { setIdType(evt.target.value); console.log(id_type) }}
@@ -231,6 +220,22 @@ export default function RegisterProfile() {
                                 </GridItem>
                                 <GridItem xs={12} sm={12} md={4}>
                                     <Input
+                                        placeholder="Username"
+                                        id="username"
+                                        value={username}
+                                        onChange={(evt) => { setUsername(evt.target.value); console.log(username) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Password"
+                                        id="password"
+                                        value={password}
+                                        onChange={(evt) => { setPassword(evt.target.value); console.log(password) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
                                         placeholder="Mobile"
                                         id="mobile"
                                         value={mobile}
@@ -278,11 +283,13 @@ export default function RegisterProfile() {
                                     />
                                 </GridItem>
                             </GridContainer>
+
+                            {/* Agree! */}
                             <GridContainer>
                                 <GridItem xs={12} sm={12} md={12}>
                                     <CustomTabs
                                         title="Agree:"
-                                        headerColor="primary"
+                                        headerColor="danger"
                                         tabs={[
                                             {
                                                 tabName: "Agreements",
@@ -307,7 +314,49 @@ export default function RegisterProfile() {
                             </GridContainer>
                         </CardBody>
                         <CardFooter>
-                            <Button color="primary" onClick={() => { console.log('onClick'); }}>Register</Button>
+                            <Button color="primary" onClick={() => {
+                                fetch("34.123.174.136:10000/createuser", {
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        "first_name": first_name,
+                                        "last_name": last_name,
+                                        "mobile": mobile,
+                                        "username": username,
+                                        "email": email,
+                                        "password": password,
+                                        "profileimage": "",
+                                        "agreements": [11717, 11718, 11719],
+                                        "address": {
+                                            "city": city,
+                                            "state": state,
+                                            "street": street,
+                                            "unit": unit,
+                                            "zip_code": zip_code
+                                        },
+                                        "shipping_address": {
+                                            "city": shipping_city,
+                                            "state": shipping_state,
+                                            "street": shipping_street,
+                                            "unit": shipping_unit,
+                                            "zip_code": shipping_zip_code
+                                        },
+                                        "identification": {
+                                            "date_of_birth": date_of_birth,
+                                            "id": id,
+                                            "id_type": id_type
+                                        },
+                                        "income": {
+                                            "amount": "u150k",
+                                            "frequency": "biweekly",
+                                            "occupation": "art",
+                                            "source": "employment"
+                                        }
+                                    })
+                                })
+
+                            }}>Register</Button>
                         </CardFooter>
                     </Card>
                 </GridItem>

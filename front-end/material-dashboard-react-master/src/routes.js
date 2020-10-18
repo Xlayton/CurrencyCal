@@ -28,6 +28,7 @@ import Language from "@material-ui/icons/Language";
 import DashboardPage from "views/Dashboard/Dashboard.js";
 import UserProfile from "views/UserProfile/UserProfile.js";
 import RegisterProfile from "views/UserProfile/RegisterProfile.js";
+import LoginPage from "views/UserProfile/Login.js";
 import TableList from "views/TableList/TableList.js";
 import Typography from "views/Typography/Typography.js";
 import Icons from "views/Icons/Icons.js";
@@ -57,6 +58,14 @@ const dashboardRoutes = [
     layout: "/admin"
   },
   {
+    path: "/login",
+    name: "Login Page",
+    rtlName: "ملف تعريفي للمستخدم",
+    icon: Person,
+    component: LoginPage,
+    layout: "/admin"
+  },
+  {
     path: "/register",
     name: "Register Profile",
     icon: Person,
@@ -79,14 +88,14 @@ const dashboardRoutes = [
   //   component: Typography,
   //   layout: "/admin"
   // },
-  // {
-  //   path: "/icons",
-  //   name: "Icons",
-  //   rtlName: "الرموز",
-  //   icon: BubbleChart,
-  //   component: Icons,
-  //   layout: "/admin"
-  // },
+  {
+    path: "/icons",
+    name: "Icons",
+    rtlName: "الرموز",
+    icon: BubbleChart,
+    component: Icons,
+    layout: "/admin"
+  },
   // {
   //   path: "/maps",
   //   name: "Maps",
@@ -102,7 +111,7 @@ const dashboardRoutes = [
   //   icon: Notifications,
   //   component: NotificationsPage,
   //   layout: "/admin"
-  // }
+  // },
   // {
   //   path: "/rtl-page",
   //   name: "RTL Support",
