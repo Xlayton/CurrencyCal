@@ -149,6 +149,13 @@ type DoubleUUID struct {
 	Amount            float32 `json:"amount"`
 }
 
+//DoubleUUID lmao
+type UUIDName struct {
+	AccountUUID  string  `json:"account_uuid"`
+	TransferName string  `json:"adding_account_name"`
+	Amount       float32 `json:"amount"`
+}
+
 //SingleUUID :\
 type SingleUUID struct {
 	AccountUUID string `json:"account_uuid"`
@@ -611,6 +618,81 @@ func doTransaction(w http.ResponseWriter, r *http.Request) {
 		w.Write(send)
 	}
 }
+func doTransactionWithName(w http.ResponseWriter, r *http.Request) {
+	//Prepare header for json response
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	//Assure method is POST
+	if r.Method == "POST" {
+		var contactFields UUIDName
+		err := json.NewDecoder(r.Body).Decode(&contactFields)
+		if err != nil || contactFields.Amount <= 0 {
+			http.Error(w, "400", http.StatusBadRequest)
+			return
+		}
+		client, ctx := getDbConnection()
+		defer client.Disconnect(ctx)
+		coll := client.Database("budgetbuddy").Collection("users")
+		var spendingUser User
+		var addingUser User
+		coll.FindOne(context.TODO(), bson.M{"uuid": contactFields.AccountUUID}).Decode(&spendingUser)
+		var transferAccID int32
+		for _, contact := range spendingUser.Contacts {
+			if contact.Name == contactFields.TransferName {
+				transferAccID = contact.AccountID
+			}
+		}
+		coll.FindOne(context.TODO(), bson.M{"accountid": transferAccID}).Decode(&addingUser)
+		godotenv.Load()
+		apiuser := os.Getenv("APIUSER")
+		apipass := os.Getenv("APIPASSWORD")
+		reqBody, _ := json.Marshal(map[string]string{
+			"username": apiuser,
+			"password": apipass,
+		})
+		resp, err := http.Post("https://sandbox.galileo-ft.com/instant/v1/login", "application/json", bytes.NewBuffer(reqBody))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var accessResp AccessResp
+		json.Unmarshal(body, &accessResp)
+		req2Body, _ := json.Marshal(map[string]string{
+			"amount":                 fmt.Sprintf("%f", contactFields.Amount),
+			"source_account_id":      fmt.Sprintf("%d", spendingUser.AccountID),
+			"destination_account_id": fmt.Sprintf("%d", addingUser.AccountID),
+		})
+		req, err := http.NewRequest("POST", "https://sandbox.galileo-ft.com/instant/v1/transfers", bytes.NewReader(req2Body))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+accessResp.AccessToken)
+		reqClient := &http.Client{}
+		res, err := reqClient.Do(req)
+		body, err = ioutil.ReadAll(res.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var transResp GalileoTransactionResp
+		json.Unmarshal(body, &transResp)
+		spendingUser.Transactions = append(spendingUser.Transactions, transResp.SourceTransactionID)
+		spendUpdate := bson.D{{Key: "$set", Value: bson.D{{Key: "transactions", Value: spendingUser.Transactions}}}}
+		addingUser.Transactions = append(addingUser.Transactions, transResp.DestinationTransactionID)
+		addingUpdate := bson.D{{Key: "$set", Value: bson.D{{Key: "transactions", Value: addingUser.Transactions}}}}
+		coll.UpdateOne(context.TODO(), bson.M{"uuid": spendingUser.UUID}, spendUpdate)
+		coll.UpdateOne(context.TODO(), bson.M{"uuid": addingUser.UUID}, addingUpdate)
+		send, _ := json.Marshal(map[string]string{
+			"msg": fmt.Sprintf("Successfully sent $%f to %s", contactFields.Amount, addingUser.FirstName),
+		})
+		w.Write(send)
+	}
+}
 
 func accountInfo(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
@@ -731,6 +813,7 @@ func main() {
 	http.HandleFunc("/addcontact", addContact)
 	http.HandleFunc("/getbalance", getBalance)
 	http.HandleFunc("/dotransaction", doTransaction)
+	http.HandleFunc("/dotransactionname", doTransactionWithName)
 	http.HandleFunc("/assistlogin", assistantLogin)
 	http.HandleFunc("/accinfo", accountInfo)
 	http.HandleFunc("/mostrecenttrans", mostRecentTransaction)
