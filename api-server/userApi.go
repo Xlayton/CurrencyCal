@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -41,6 +42,10 @@ type ShippingAddress struct {
 
 //Income users income data
 type Income struct {
+	Amount     string `json:"amount"`
+	Frequency  string `json:"frequency"`
+	Occupation string `json:"occupation"`
+	Source     string `json:"source"`
 }
 
 //Identity users identification
@@ -52,7 +57,7 @@ type Identity struct {
 
 //User struct to represent a user in the db
 type User struct {
-	UUID            string          `json:"uuid"`
+	UUID            string          `json:"uuid,omitempty"`
 	FirstName       string          `json:"first_name"`
 	LastName        string          `json:"last_name"`
 	PhoneNumber     string          `json:"mobile"`
@@ -65,6 +70,8 @@ type User struct {
 	Identity        Identity        `json:"identification"`
 	Income          Income          `json:"income"`
 	ShippingAddress ShippingAddress `json:"shipping_address"`
+	CardholderID    int16           `json:"cardholderid,omitempty"`
+	AccountID       int32           `json:"accountID,omitempty"`
 	//TODO Add Galileo data that matters :\
 }
 
@@ -79,6 +86,53 @@ type LoginResponse struct {
 	Code    int16  `json:"code"`
 	Message string `json:"message"`
 	User    User   `json:"user"`
+}
+
+//AccessResp is the response given by Galileo API
+type AccessResp struct {
+	AccessToken string `json:"access_token"`
+}
+
+//Cardholder :\
+type Cardholder struct {
+	FirstName       string          `json:"first_name"`
+	LastName        string          `json:"last_name"`
+	PhoneNumber     string          `json:"mobile"`
+	Email           string          `json:"email"`
+	Agreements      []int32         `json:"agreements"`
+	Address         Address         `json:"address"`
+	Identity        Identity        `json:"identification"`
+	Income          Income          `json:"income"`
+	ShippingAddress ShippingAddress `json:"shipping_address"`
+}
+
+//CardholderCreation for creating cardholder
+type CardholderCreation struct {
+	Cardholder Cardholder `json:"cardholder"`
+	ProductID  int32      `json:"product_id"`
+}
+
+//CardholderResponse word
+type CardholderResponse struct {
+	CardholderID int16 `json:"cardholder_id"`
+}
+
+//Account lmao
+type Account struct {
+	AccountID     int32  `json:"account_id"`
+	AccountNumber string `json:"account_number"`
+	AccountType   string `json:"account_type"`
+	Balance       int32  `json:"balance"`
+	CreationDate  string `json:"creation_date"`
+	Name          string `json:"name"`
+	ProductID     int32  `json:"product_id"`
+	RoutingNumber string `json:"routing_number"`
+	Status        string `json:"status"`
+}
+
+//AccountCreateResponse lol
+type AccountCreateResponse struct {
+	Accounts []Account `json:"accounts"`
 }
 
 func uploadImage(w http.ResponseWriter, r *http.Request) {
@@ -126,6 +180,49 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		godotenv.Load()
+		apiuser := os.Getenv("APIUSER")
+		apipass := os.Getenv("APIPASSWORD")
+		reqBody, _ := json.Marshal(map[string]string{
+			"username": apiuser,
+			"password": apipass,
+		})
+		resp, err := http.Post("https://sandbox.galileo-ft.com/instant/v1/login", "application/json", bytes.NewBuffer(reqBody))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var accessResp AccessResp
+		json.Unmarshal(body, &accessResp)
+		cardholder := Cardholder{user.FirstName, user.LastName, user.PhoneNumber, user.Email, user.Agreements, user.Address, user.Identity, user.Income, user.ShippingAddress}
+		cardholderInfo, _ := json.Marshal(CardholderCreation{Cardholder: cardholder, ProductID: 19469})
+		req, err := http.NewRequest("POST", "https://sandbox.galileo-ft.com/instant/v1/cardholders", bytes.NewReader(cardholderInfo))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+accessResp.AccessToken)
+		reqClient := &http.Client{}
+		res, err := reqClient.Do(req)
+		body, _ = ioutil.ReadAll(res.Body)
+		log.Println(string(body))
+		var cardholderResp CardholderResponse
+		json.Unmarshal(body, &cardholderResp)
+		user.CardholderID = cardholderResp.CardholderID
+		accountURL := fmt.Sprintf("https://sandbox.galileo-ft.com/instant/v1/cardholders/%d/accounts", cardholderResp.CardholderID)
+		log.Println(accountURL)
+		req, _ = http.NewRequest("GET", accountURL, nil)
+		req.Header.Set("Authorization", "Bearer "+accessResp.AccessToken)
+		reqClient = &http.Client{}
+		res, _ = reqClient.Do(req)
+		body, _ = ioutil.ReadAll(res.Body)
+		var accCreateResp AccountCreateResponse
+		json.Unmarshal(body, &accCreateResp)
+		log.Println(string(body), accCreateResp)
+		user.AccountID = accCreateResp.Accounts[0].AccountID
 		client, ctx := getDbConnection()
 		defer client.Disconnect(ctx)
 		coll := client.Database("budgetbuddy").Collection("users")
@@ -134,8 +231,8 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		resp, _ := json.Marshal(GeneralResponse{200, "OK"})
-		w.Write(resp)
+		back, _ := json.Marshal(GeneralResponse{200, "OK"})
+		w.Write(back)
 	}
 }
 
@@ -287,12 +384,17 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func googleGetBalance(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.Body)
+}
+
 func main() {
 	http.Handle("/image/", http.StripPrefix("/image/", http.FileServer(http.Dir("./image"))))
 	http.HandleFunc("/createuser", createUser)
 	http.HandleFunc("/updateuser", updateUser)
 	http.HandleFunc("/getuser", getUser)
 	http.HandleFunc("/deleteuser", deleteUser)
+	http.HandleFunc("/googleBalance", googleGetBalance)
 	log.Fatal(http.ListenAndServe(":10000", nil))
 
 }
