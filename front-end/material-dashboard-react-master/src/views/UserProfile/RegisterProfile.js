@@ -141,7 +141,7 @@ export default function RegisterProfile() {
                                 </GridItem>
                                 <GridItem xs={12} sm={12} md={4}>
                                     <Input
-                                        placeholder="State"
+                                        placeholder="State(OH, UT..)"
                                         id="state"
                                         value={state}
                                         onChange={(evt) => { setState(evt.target.value); console.log(state) }}
@@ -181,7 +181,7 @@ export default function RegisterProfile() {
                                 </GridItem>
                                 <GridItem xs={12} sm={12} md={4}>
                                     <Input
-                                        placeholder="Shipping State"
+                                        placeholder="Shipping State(UT, MN..)"
                                         id="shipping_state"
                                         value={shipping_state}
                                         onChange={(evt) => { setShippingState(evt.target.value); console.log(shipping_state) }}
@@ -316,6 +316,7 @@ export default function RegisterProfile() {
                                     headers: {
                                         "Content-Type": "application/json"
                                     },
+                                    mode: "no-cors",
                                     method: "POST",
                                     body: JSON.stringify({
                                         "first_name": first_name,

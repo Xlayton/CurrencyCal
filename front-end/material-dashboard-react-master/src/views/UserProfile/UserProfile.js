@@ -41,7 +41,10 @@ import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import CardAvatar from "components/Card/CardAvatar.js";
 
-import avatar from "assets/img/faces/ugly.jpg";
+import zane from "assets/img/faces/zane.jpg";
+import josh from "assets/img/faces/josh.jpg";
+import clayton from "assets/img/faces/clayton.png";
+import eric from "assets/img/faces/eric.png";
 
 import {
   dailySalesChart,
@@ -56,7 +59,10 @@ const useStyles = makeStyles(styles);
 
 export default function UserProfile() {
   const classes = useStyles();
-  const bull = <span className={classes.bullet}>•</span>;
+  const [balance, setBalance] = useState(-1);
+  const [user_info, setUserInfo] = useState({ contacts: [] });
+  const [user_id, setUserId] = useState("");
+
   return (
     <div>
       {/* Balance */}
@@ -69,7 +75,7 @@ export default function UserProfile() {
               </CardIcon>
               <p className={classes.cardCategory}>Current Balance</p>
               <h3 className={classes.cardTitle}>
-                $5.00(I am fake text)
+                $ {balance}
               </h3>
             </CardHeader>
             <CardFooter stats>
@@ -89,13 +95,13 @@ export default function UserProfile() {
               </CardIcon>
               <p className={classes.cardCategory}>Contacts</p>
               <h3 className={classes.cardTitle}>
-                7(Also fake)
+                {user_info.contacts.length}
               </h3>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
                 <Icon>contact_page</Icon>
-                <a href="#pablo" onClick={e => e.preventDefault()}>View Contacts</a>
+                Add more on Alexa!
               </div>
             </CardFooter>
           </Card>
@@ -107,15 +113,15 @@ export default function UserProfile() {
               <CardIcon color="warning">
                 <Icon>monetization_on</Icon>
               </CardIcon>
-              <p className={classes.cardCategory}>Content</p>
+              <p className={classes.cardCategory}>Powered By</p>
               <h3 className={classes.cardTitle}>
-                Galeleio API
+                Galileo Instant
               </h3>
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
                 <Icon>assessment</Icon>
-                API and Balance provided by Gelioaleo
+                API and Balance provided by Galileo
               </div>
             </CardFooter>
           </Card>
@@ -127,37 +133,49 @@ export default function UserProfile() {
         <Card className={classes.root} variant="outlined">
           <CardContent>
             <Typography className={classes.title} color="textSecondary" gutterBottom>
-              How I feel...
-        </Typography>
-            <Typography variant="h5" component="h2">
-              F{bull}U{bull}C{bull}K
-        </Typography>
-            <Typography className={classes.pos} color="textSecondary">
-              Dick?
-        </Typography>
-            <Typography variant="body2" component="p">
-              Ass
-          <br />
-              {'"a good mood"'}
+              Please paste your id here
             </Typography>
+            <GridItem xs={12} sm={12} md={12}>
+              <Input
+                placeholder="Id..."
+                id="user_id"
+                value={user_id}
+                onChange={(evt) => { setUserId(evt.target.value); console.log(user_id) }}
+              />
+            </GridItem>
           </CardContent>
         </Card>
-      </GridContainer>
-      <GridContainer>
-        <GridItem xs={12} sm={12} md={4}>
-          <Card profile>
-            <CardAvatar profile>
-              <a href="#pablo" onClick={e => e.preventDefault()}>
-                <img src={avatar} alt="..." />
-              </a>
-            </CardAvatar>
-            <CardBody profile>
-              <h6 className={classes.cardCategory}>CEO / CO-FOUNDER</h6>
-              <h4 className={classes.cardTitle}>Idiot Kid</h4>
-              <Button color="primary" round>Edit</Button>
-            </CardBody>
-          </Card>
-        </GridItem>
+        <CardFooter>
+          <Button color="success" onClick={() => {
+            if (balance < 0) {
+              fetch("http://35.188.19.111/getbalance", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  "account_uuid": user_id
+                })
+              })
+                .then(res => res.json())
+                .then(data => setBalance(data.balance))
+            }
+
+            if (!user_info.first_name) {
+              fetch("http://35.188.19.111/accinfo", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  "account_uuid": user_id
+                })
+              })
+                .then(res => res.json())
+                .then(data => setUserInfo(data))
+            }
+          }}>Submit</Button>
+        </CardFooter>
       </GridContainer>
     </div >
   );

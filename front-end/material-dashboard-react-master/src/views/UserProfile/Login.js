@@ -35,8 +35,9 @@ const useStyles = makeStyles(styles);
 export default function LoginPage() {
     const classes = useStyles();
 
-    const [username, setUsername] = useState();
-    const [password, setPassword] = useState();
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [user_id, setUserId] = useState("");
 
     return (
         <div>
@@ -50,7 +51,7 @@ export default function LoginPage() {
                             <GridContainer>
                                 <GridItem xs={12} sm={12} md={4}>
                                     <Input
-                                        placeholder="Username/Email"
+                                        placeholder="Cardholder Id (4 digits)"
                                         id="username"
                                         value={username}
                                         onChange={(evt) => { setUsername(evt.target.value); console.log(username) }}
@@ -64,10 +65,25 @@ export default function LoginPage() {
                                         onChange={(evt) => { setPassword(evt.target.value); console.log(password) }}
                                     />
                                 </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <h4>Your unique Id. Please copy for the user profile page: {user_id}</h4>
+                                </GridItem>
                             </GridContainer>
                         </CardBody>
                         <CardFooter>
-                            <Button color="success">Login</Button>
+                            <Button color="success" onClick={() => {
+                                fetch("http://35.188.19.111/assistlogin", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        "cardholder_id": parseInt(username, 10)
+                                    })
+                                })
+                                .then(res => res.json())
+                                .then(data => setUserId(data.user_uuid))
+                            }}>Login</Button>
                         </CardFooter>
                     </Card>
                 </GridItem>
