@@ -135,6 +135,42 @@ type AccountCreateResponse struct {
 	Accounts []Account `json:"accounts"`
 }
 
+type intent struct {
+	DisplayName string `json:"displayName"`
+}
+
+type queryResult struct {
+	Intent intent `json:"intent"`
+}
+
+type text struct {
+	Text []string `json:"text"`
+}
+
+type message struct {
+	Text text `json:"text"`
+}
+
+// webhookRequest is used to unmarshal a WebhookRequest JSON object. Note that
+// not all members need to be defined--just those that you need to process.
+// As an alternative, you could use the types provided by
+// the Dialogflow protocol buffers:
+// https://godoc.org/google.golang.org/genproto/googleapis/cloud/dialogflow/v2#WebhookRequest
+type webhookRequest struct {
+	Session     string      `json:"session"`
+	ResponseID  string      `json:"responseId"`
+	QueryResult queryResult `json:"queryResult"`
+}
+
+// webhookResponse is used to marshal a WebhookResponse JSON object. Note that
+// not all members need to be defined--just those that you need to process.
+// As an alternative, you could use the types provided by
+// the Dialogflow protocol buffers:
+// https://godoc.org/google.golang.org/genproto/googleapis/cloud/dialogflow/v2#WebhookResponse
+type webhookResponse struct {
+	FulfillmentMessages []message `json:"fulfillmentMessages"`
+}
+
 func uploadImage(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
@@ -386,6 +422,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 
 func googleGetBalance(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.Body)
+	w.Write([]byte(`{"msg": "Die ;)"}`))
 }
 
 func main() {
