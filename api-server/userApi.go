@@ -55,6 +55,11 @@ type Identity struct {
 	IDType string `json:"id_type"`
 }
 
+type Contact struct {
+	Name      string `json:"name"`
+	AccountID int32  `json:"account_id"`
+}
+
 //User struct to represent a user in the db
 type User struct {
 	UUID            string          `json:"uuid,omitempty"`
@@ -72,6 +77,8 @@ type User struct {
 	ShippingAddress ShippingAddress `json:"shipping_address"`
 	CardholderID    int16           `json:"cardholderid,omitempty"`
 	AccountID       int32           `json:"accountID,omitempty"`
+	Contacts        []Contact       `json:"contacts,omitempty"`
+	Transactions    []int           `json:"transactions,omitempty"`
 	//TODO Add Galileo data that matters :\
 }
 
@@ -135,40 +142,40 @@ type AccountCreateResponse struct {
 	Accounts []Account `json:"accounts"`
 }
 
-type intent struct {
-	DisplayName string `json:"displayName"`
+//DoubleUUID lmao
+type DoubleUUID struct {
+	AccountUUID       string  `json:"account_uuid"`
+	AddingAccountUUID string  `json:"adding_account_uuid"`
+	Amount            float32 `json:"amount"`
 }
 
-type queryResult struct {
-	Intent intent `json:"intent"`
+//SingleUUID :\
+type SingleUUID struct {
+	AccountUUID string `json:"account_uuid"`
 }
 
-type text struct {
-	Text []string `json:"text"`
+//AssistLogin sadge
+type AssistLogin struct {
+	CardholderID int32 `json:"cardholder_id"`
 }
 
-type message struct {
-	Text text `json:"text"`
+//GalileoAccountResp hi
+type GalileoAccountResp struct {
+	AccountID     int       `json:"account_id"`
+	AccountNumber string    `json:"account_number"`
+	AccountType   string    `json:"account_type"`
+	Balance       float64   `json:"balance"`
+	CreationDate  time.Time `json:"creation_date"`
+	Name          string    `json:"name"`
+	ProductID     int       `json:"product_id"`
+	RoutingNumber string    `json:"routing_number"`
+	Status        string    `json:"status"`
 }
 
-// webhookRequest is used to unmarshal a WebhookRequest JSON object. Note that
-// not all members need to be defined--just those that you need to process.
-// As an alternative, you could use the types provided by
-// the Dialogflow protocol buffers:
-// https://godoc.org/google.golang.org/genproto/googleapis/cloud/dialogflow/v2#WebhookRequest
-type webhookRequest struct {
-	Session     string      `json:"session"`
-	ResponseID  string      `json:"responseId"`
-	QueryResult queryResult `json:"queryResult"`
-}
-
-// webhookResponse is used to marshal a WebhookResponse JSON object. Note that
-// not all members need to be defined--just those that you need to process.
-// As an alternative, you could use the types provided by
-// the Dialogflow protocol buffers:
-// https://godoc.org/google.golang.org/genproto/googleapis/cloud/dialogflow/v2#WebhookResponse
-type webhookResponse struct {
-	FulfillmentMessages []message `json:"fulfillmentMessages"`
+//GalileoTransactionResp mom
+type GalileoTransactionResp struct {
+	DestinationTransactionID int `json:"destination_transaction_id"`
+	SourceTransactionID      int `json:"source_transaction_id"`
 }
 
 func uploadImage(w http.ResponseWriter, r *http.Request) {
@@ -208,10 +215,15 @@ func uploadImage(w http.ResponseWriter, r *http.Request) {
 func createUser(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Checks for POST method, otherwise responds with 404
 	if r.Method == "POST" {
 		var user User
 		err := json.NewDecoder(r.Body).Decode(&user)
+		user.Contacts = []Contact{}
+		user.Transactions = []int{}
+		uuid, _ := uuid.NewUUID()
+		user.UUID = uuid.String()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -257,7 +269,6 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		body, _ = ioutil.ReadAll(res.Body)
 		var accCreateResp AccountCreateResponse
 		json.Unmarshal(body, &accCreateResp)
-		log.Println(string(body), accCreateResp)
 		user.AccountID = accCreateResp.Accounts[0].AccountID
 		client, ctx := getDbConnection()
 		defer client.Disconnect(ctx)
@@ -420,9 +431,182 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func googleGetBalance(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.Body)
-	w.Write([]byte(`{"msg": "Die ;)"}`))
+func addContact(w http.ResponseWriter, r *http.Request) {
+	//Prepare header for json response
+	w.Header().Set("Content-Type", "application/json")
+	//Assure method is POST
+	if r.Method == "POST" {
+		var contactFields DoubleUUID
+		err := json.NewDecoder(r.Body).Decode(&contactFields)
+		if err != nil {
+			http.Error(w, "400", http.StatusBadRequest)
+			return
+		}
+		client, ctx := getDbConnection()
+		defer client.Disconnect(ctx)
+		coll := client.Database("budgetbuddy").Collection("users")
+		var foundUser User
+		var addingUser User
+		coll.FindOne(context.TODO(), bson.M{"uuid": contactFields.AccountUUID}).Decode(&foundUser)
+		coll.FindOne(context.TODO(), bson.M{"uuid": contactFields.AddingAccountUUID}).Decode(&addingUser)
+		foundUser.Contacts = append(foundUser.Contacts, Contact{addingUser.FirstName, addingUser.AccountID})
+		update := bson.D{{Key: "$set", Value: bson.D{{Key: "contacts", Value: foundUser.Contacts}}}}
+		coll.UpdateOne(context.TODO(), bson.M{"uuid": foundUser.UUID}, update)
+		resp, _ := json.Marshal(GeneralResponse{200, "OK"})
+		w.Write(resp)
+	}
+}
+
+func getBalance(w http.ResponseWriter, r *http.Request) {
+	//Prepare header for json response
+	w.Header().Set("Content-Type", "application/json")
+	//Assure method is POST
+	if r.Method == "POST" {
+		var balanceField SingleUUID
+		err := json.NewDecoder(r.Body).Decode(&balanceField)
+		if err != nil {
+			http.Error(w, "400", http.StatusBadRequest)
+			return
+		}
+		client, ctx := getDbConnection()
+		defer client.Disconnect(ctx)
+		coll := client.Database("budgetbuddy").Collection("users")
+		var foundUser User
+		coll.FindOne(context.TODO(), bson.M{"uuid": balanceField.AccountUUID}).Decode(&foundUser)
+		godotenv.Load()
+		apiuser := os.Getenv("APIUSER")
+		apipass := os.Getenv("APIPASSWORD")
+		reqBody, _ := json.Marshal(map[string]string{
+			"username": apiuser,
+			"password": apipass,
+		})
+		resp, err := http.Post("https://sandbox.galileo-ft.com/instant/v1/login", "application/json", bytes.NewBuffer(reqBody))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var accessResp AccessResp
+		json.Unmarshal(body, &accessResp)
+		accountURL := fmt.Sprintf("https://sandbox.galileo-ft.com/instant/v1/cardholders/%d/accounts/%d", foundUser.CardholderID, foundUser.AccountID)
+		log.Println(accountURL)
+		req, _ := http.NewRequest("GET", accountURL, nil)
+		req.Header.Set("Authorization", "Bearer "+accessResp.AccessToken)
+		reqClient := &http.Client{}
+		res, _ := reqClient.Do(req)
+		body, _ = ioutil.ReadAll(res.Body)
+		var accountResp GalileoAccountResp
+		json.Unmarshal(body, &accountResp)
+		send, _ := json.Marshal(map[string]string{
+			"balance": fmt.Sprintf("%f", accountResp.Balance),
+			"msg":     fmt.Sprintf("%s, Your balance is $%f", foundUser.FirstName, accountResp.Balance),
+		})
+		w.Write(send)
+	}
+}
+
+func doTransaction(w http.ResponseWriter, r *http.Request) {
+	//Prepare header for json response
+	w.Header().Set("Content-Type", "application/json")
+	//Assure method is POST
+	if r.Method == "POST" {
+		var contactFields DoubleUUID
+		err := json.NewDecoder(r.Body).Decode(&contactFields)
+		if err != nil || contactFields.Amount <= 0 {
+			http.Error(w, "400", http.StatusBadRequest)
+			return
+		}
+		client, ctx := getDbConnection()
+		defer client.Disconnect(ctx)
+		coll := client.Database("budgetbuddy").Collection("users")
+		var spendingUser User
+		var addingUser User
+		coll.FindOne(context.TODO(), bson.M{"uuid": contactFields.AccountUUID}).Decode(&spendingUser)
+		coll.FindOne(context.TODO(), bson.M{"uuid": contactFields.AddingAccountUUID}).Decode(&addingUser)
+		godotenv.Load()
+		apiuser := os.Getenv("APIUSER")
+		apipass := os.Getenv("APIPASSWORD")
+		reqBody, _ := json.Marshal(map[string]string{
+			"username": apiuser,
+			"password": apipass,
+		})
+		resp, err := http.Post("https://sandbox.galileo-ft.com/instant/v1/login", "application/json", bytes.NewBuffer(reqBody))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var accessResp AccessResp
+		json.Unmarshal(body, &accessResp)
+		req2Body, _ := json.Marshal(map[string]string{
+			"amount":                 fmt.Sprintf("%f", contactFields.Amount),
+			"source_account_id":      fmt.Sprintf("%d", spendingUser.AccountID),
+			"destination_account_id": fmt.Sprintf("%d", addingUser.AccountID),
+		})
+		req, err := http.NewRequest("POST", "https://sandbox.galileo-ft.com/instant/v1/transfers", bytes.NewReader(req2Body))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+accessResp.AccessToken)
+		reqClient := &http.Client{}
+		res, err := reqClient.Do(req)
+		body, err = ioutil.ReadAll(res.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var transResp GalileoTransactionResp
+		json.Unmarshal(body, &transResp)
+		spendingUser.Transactions = append(spendingUser.Transactions, transResp.SourceTransactionID)
+		spendUpdate := bson.D{{Key: "$set", Value: bson.D{{Key: "transactions", Value: spendingUser.Transactions}}}}
+		addingUser.Transactions = append(addingUser.Transactions, transResp.DestinationTransactionID)
+		addingUpdate := bson.D{{Key: "$set", Value: bson.D{{Key: "transactions", Value: addingUser.Transactions}}}}
+		coll.UpdateOne(context.TODO(), bson.M{"uuid": spendingUser.UUID}, spendUpdate)
+		coll.UpdateOne(context.TODO(), bson.M{"uuid": addingUser.UUID}, addingUpdate)
+		send, _ := json.Marshal(map[string]string{
+			"msg": fmt.Sprintf("Successfully sent $%f to %s", contactFields.Amount, addingUser.FirstName),
+		})
+		w.Write(send)
+	}
+}
+
+func accountInfo(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func mostRecentTransaction(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func assistantLogin(w http.ResponseWriter, r *http.Request) {
+	//Prepare header for json response
+	w.Header().Set("Content-Type", "application/json")
+	//Assure method is POST
+	if r.Method == "POST" {
+		var assistLogin AssistLogin
+		err := json.NewDecoder(r.Body).Decode(&assistLogin)
+		if err != nil {
+			http.Error(w, "400", http.StatusBadRequest)
+			return
+		}
+		client, ctx := getDbConnection()
+		defer client.Disconnect(ctx)
+		coll := client.Database("budgetbuddy").Collection("users")
+		var user User
+		coll.FindOne(context.TODO(), bson.M{"account_id": assistLogin.CardholderID}).Decode(&user)
+		send, _ := json.Marshal(map[string]string{
+			"user_uuid": user.UUID,
+		})
+		w.Write(send)
+	}
 }
 
 func main() {
@@ -431,7 +615,10 @@ func main() {
 	http.HandleFunc("/updateuser", updateUser)
 	http.HandleFunc("/getuser", getUser)
 	http.HandleFunc("/deleteuser", deleteUser)
-	http.HandleFunc("/googleBalance", googleGetBalance)
+	http.HandleFunc("/addcontact", addContact)
+	http.HandleFunc("/getbalance", getBalance)
+	http.HandleFunc("/dotransaction", doTransaction)
+	http.HandleFunc("/assistlogin", assistantLogin)
 	log.Fatal(http.ListenAndServe(":10000", nil))
 
 }
