@@ -13,7 +13,11 @@
         },
         {
           "name": "AMAZON.HelpIntent",
-          "samples": []
+          "samples": [
+            "help",
+            "how do I use this app",
+            "help me"
+          ]
         },
         {
           "name": "AMAZON.StopIntent",
