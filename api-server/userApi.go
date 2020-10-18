@@ -306,11 +306,13 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	//Assure method is GET
 	if r.Method == "GET" {
 		//Parse data from params
-		r.ParseForm()
+		var loginInfo struct {
+			UserID   string `json:"user_id"`
+			Password string `json:"password"`
+		}
+		err := json.NewDecoder(r.Body).Decode(&loginInfo)
 		//Get and check for required fields
-		userID := r.Form.Get("userid")
-		password := r.Form.Get("password")
-		if isStringEmpty(userID) || isStringEmpty(password) {
+		if isStringEmpty(loginInfo.UserID) || isStringEmpty(loginInfo.Password) {
 			errResp, _ := json.Marshal(GeneralResponse{400, "Please provide valid username and password"})
 			w.Write(errResp)
 			return
@@ -320,19 +322,18 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 		defer client.Disconnect(ctx)
 		coll := client.Database("budgetbuddy").Collection("users")
 		var foundUser User
-		var err error
-		if emailRegex.Match([]byte(userID)) {
-			err = coll.FindOne(context.TODO(), bson.M{"email": userID}).Decode(&foundUser)
+		if emailRegex.Match([]byte(loginInfo.UserID)) {
+			err = coll.FindOne(context.TODO(), bson.M{"email": loginInfo.UserID}).Decode(&foundUser)
 		} else {
-			err = coll.FindOne(context.TODO(), bson.M{"username": userID}).Decode(&foundUser)
+			err = coll.FindOne(context.TODO(), bson.M{"username": loginInfo.UserID}).Decode(&foundUser)
 		}
 		if err != nil {
-			log.Println("Error logging in: " + userID + ":" + password)
+			log.Println("Error logging in: " + loginInfo.UserID + ":" + loginInfo.Password)
 			errResp, _ := json.Marshal(GeneralResponse{500, "Internal Server Error."})
 			w.Write(errResp)
 			return
 		}
-		err = bcrypt.CompareHashAndPassword([]byte(foundUser.PassHash), []byte(password))
+		err = bcrypt.CompareHashAndPassword([]byte(foundUser.PassHash), []byte(loginInfo.Password))
 		if err != nil {
 			errResp, _ := json.Marshal(GeneralResponse{400, "Please provide valid username/email & password combination"})
 			w.Write(errResp)
