@@ -693,7 +693,8 @@ func assistantLogin(w http.ResponseWriter, r *http.Request) {
 		defer client.Disconnect(ctx)
 		coll := client.Database("budgetbuddy").Collection("users")
 		var user User
-		coll.FindOne(context.TODO(), bson.M{"account_id": assistLogin.CardholderID}).Decode(&user)
+		log.Println(assistLogin.CardholderID)
+		coll.FindOne(context.TODO(), bson.M{"cardholderid": assistLogin.CardholderID}).Decode(&user)
 		send, _ := json.Marshal(map[string]string{
 			"user_uuid": user.UUID,
 		})
