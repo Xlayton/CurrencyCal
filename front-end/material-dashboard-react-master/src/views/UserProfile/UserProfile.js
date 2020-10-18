@@ -50,6 +50,7 @@ import {
 } from "variables/charts.js";
 
 import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
+import { Assessment } from "@material-ui/icons";
 
 const useStyles = makeStyles(styles);
 
@@ -71,10 +72,16 @@ export default function UserProfile() {
                 $5.00(I am fake text)
               </h3>
             </CardHeader>
+            <CardFooter stats>
+              <div className={classes.stats}>
+                <Update />
+                Just Updated
+              </div>
+            </CardFooter>
           </Card>
         </GridItem>
         {/* Contacts */}
-        <GridItem xs={12} sm={6} md={3}>
+        <GridItem xs={12} sm={6} md={4}>
           <Card>
             <CardHeader color="info" stats icon>
               <CardIcon color="info">
@@ -87,7 +94,28 @@ export default function UserProfile() {
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
+                <Icon>contact_page</Icon>
                 <a href="#pablo" onClick={e => e.preventDefault()}>View Contacts</a>
+              </div>
+            </CardFooter>
+          </Card>
+          {/* Fill */}
+        </GridItem>
+        <GridItem xs={12} sm={6} md={4}>
+          <Card>
+            <CardHeader color="warning" stats icon>
+              <CardIcon color="warning">
+                <Icon>monetization_on</Icon>
+              </CardIcon>
+              <p className={classes.cardCategory}>Content</p>
+              <h3 className={classes.cardTitle}>
+                Galeleio API
+              </h3>
+            </CardHeader>
+            <CardFooter stats>
+              <div className={classes.stats}>
+                <Icon>assessment</Icon>
+                API and Balance provided by Gelioaleo
               </div>
             </CardFooter>
           </Card>
@@ -114,6 +142,8 @@ export default function UserProfile() {
             </Typography>
           </CardContent>
         </Card>
+      </GridContainer>
+      <GridContainer>
         <GridItem xs={12} sm={12} md={4}>
           <Card profile>
             <CardAvatar profile>
@@ -129,6 +159,6 @@ export default function UserProfile() {
           </Card>
         </GridItem>
       </GridContainer>
-    </div>
+    </div >
   );
 }

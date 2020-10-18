@@ -37,8 +37,6 @@ export default function LoginPage() {
 
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
-    const [first_name, setFirstName] = useState();
-    const [last_name, setLastName] = useState();
 
     return (
         <div>

@@ -18,6 +18,7 @@ import CardFooter from "components/Card/CardFooter.js";
 
 import { bugs, website, server, agreementTask, agreementUrl } from "variables/general.js";
 import avatar from "assets/img/faces/marc.jpg";
+import { Grid } from "@material-ui/core";
 
 const styles = {
     cardCategoryWhite: {
@@ -84,6 +85,54 @@ export default function RegisterProfile() {
                             <GridContainer>
                                 <GridItem xs={12} sm={12} md={4}>
                                     <Input
+                                        placeholder="First Name"
+                                        id="first_name"
+                                        value={first_name}
+                                        onChange={(evt) => { setFirstName(evt.target.value); console.log(first_name) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Last Name"
+                                        id="last_name"
+                                        value={last_name}
+                                        onChange={(evt) => { setLastName(evt.target.value); console.log(last_name) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Mobile"
+                                        id="mobile"
+                                        value={mobile}
+                                        onChange={(evt) => { setMobile(evt.target.value); console.log(mobile) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Username"
+                                        id="username"
+                                        value={username}
+                                        onChange={(evt) => { setUsername(evt.target.value); console.log(username) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Email"
+                                        id="email"
+                                        value={email}
+                                        onChange={(evt) => { setEmail(evt.target.value); console.log(email) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Password"
+                                        id="password"
+                                        value={password}
+                                        onChange={(evt) => { setPassword(evt.target.value); console.log(password) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
                                         placeholder="City"
                                         id="city"
                                         value={city}
@@ -120,126 +169,6 @@ export default function RegisterProfile() {
                                         id="zip_code"
                                         value={zip_code}
                                         onChange={(evt) => { setZipCode(evt.target.value); console.log(zip_code) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Email"
-                                        id="email"
-                                        value={email}
-                                        onChange={(evt) => { setEmail(evt.target.value); console.log(email) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="First Name"
-                                        id="first_name"
-                                        value={first_name}
-                                        onChange={(evt) => { setFirstName(evt.target.value); console.log(first_name) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Identification"
-                                        id="identification"
-                                        value={identification}
-                                        onChange={(evt) => { setIdentification(evt.target.value); console.log(identification) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Date of birth"
-                                        id="date_of_birth"
-                                        value={date_of_birth}
-                                        onChange={(evt) => { setDateOfBirth(evt.target.value); console.log(date_of_birth) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Id"
-                                        id="id"
-                                        value={id}
-                                        onChange={(evt) => { setId(evt.target.value); console.log(id) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="SSN"
-                                        id="id_type"
-                                        value={id_type}
-                                        onChange={(evt) => { setIdType(evt.target.value); console.log(id_type) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Income"
-                                        id="income"
-                                        value={income}
-                                        onChange={(evt) => { setIncome(evt.target.value); console.log(income) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Amount"
-                                        id="amount"
-                                        value={amount}
-                                        onChange={(evt) => { setAmount(evt.target.value); console.log(amount) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Frequency"
-                                        id="frequency"
-                                        value={frequency}
-                                        onChange={(evt) => { setFrequency(evt.target.value); console.log(frequency) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Occupation"
-                                        id="occupation"
-                                        value={occupation}
-                                        onChange={(evt) => { setOccupation(evt.target.value); console.log(occupation) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Source"
-                                        id="source"
-                                        value={source}
-                                        onChange={(evt) => { setSource(evt.target.value); console.log(source) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Last Name"
-                                        id="last_name"
-                                        value={last_name}
-                                        onChange={(evt) => { setLastName(evt.target.value); console.log(last_name) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Username"
-                                        id="username"
-                                        value={username}
-                                        onChange={(evt) => { setUsername(evt.target.value); console.log(username) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Password"
-                                        id="password"
-                                        value={password}
-                                        onChange={(evt) => { setPassword(evt.target.value); console.log(password) }}
-                                    />
-                                </GridItem>
-                                <GridItem xs={12} sm={12} md={4}>
-                                    <Input
-                                        placeholder="Mobile"
-                                        id="mobile"
-                                        value={mobile}
-                                        onChange={(evt) => { setMobile(evt.target.value); console.log(mobile) }}
                                     />
                                 </GridItem>
                                 <GridItem xs={12} sm={12} md={4}>
@@ -282,9 +211,82 @@ export default function RegisterProfile() {
                                         onChange={(evt) => { setShippingZipCode(evt.target.value); console.log(shipping_zip_code) }}
                                     />
                                 </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="DOB (YYYY-MM-DD)"
+                                        id="date_of_birth"
+                                        value={date_of_birth}
+                                        onChange={(evt) => { setDateOfBirth(evt.target.value); console.log(date_of_birth) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="SSN"
+                                        id="id"
+                                        value={id}
+                                        onChange={(evt) => { setId(evt.target.value); console.log(id) }}
+                                    />
+                                </GridItem>
+                                {/* <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="SSN"
+                                        id="id_type"
+                                        value={id_type}
+                                        onChange={(evt) => { setIdType(evt.target.value); console.log(id_type) }}
+                                    />
+                                </GridItem> */}
+                                {/* <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Identification"
+                                        id="identification"
+                                        value={identification}
+                                        onChange={(evt) => { setIdentification(evt.target.value); console.log(identification) }}
+                                    />
+                                </GridItem> */}
+
+                                {/* <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Income"
+                                        id="income"
+                                        value={income}
+                                        onChange={(evt) => { setIncome(evt.target.value); console.log(income) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Amount"
+                                        id="amount"
+                                        value={amount}
+                                        onChange={(evt) => { setAmount(evt.target.value); console.log(amount) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Frequency"
+                                        id="frequency"
+                                        value={frequency}
+                                        onChange={(evt) => { setFrequency(evt.target.value); console.log(frequency) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Occupation"
+                                        id="occupation"
+                                        value={occupation}
+                                        onChange={(evt) => { setOccupation(evt.target.value); console.log(occupation) }}
+                                    />
+                                </GridItem>
+                                <GridItem xs={12} sm={12} md={4}>
+                                    <Input
+                                        placeholder="Source"
+                                        id="source"
+                                        value={source}
+                                        onChange={(evt) => { setSource(evt.target.value); console.log(source) }}
+                                    />
+                                </GridItem> */}
                             </GridContainer>
 
-                            {/* Agree! */}
+                            {/* Agreement */}
                             <GridContainer>
                                 <GridItem xs={12} sm={12} md={12}>
                                     <CustomTabs
@@ -307,18 +309,14 @@ export default function RegisterProfile() {
                                     />
                                 </GridItem>
                             </GridContainer>
-                            <GridContainer>
-                                <GridItem xs={12} sm={12} md={12}>
-                                    {/* <InputLabel style={{ color: "#AAAAAA" }}>About me</InputLabel> */}
-                                </GridItem>
-                            </GridContainer>
                         </CardBody>
                         <CardFooter>
                             <Button color="primary" onClick={() => {
-                                fetch("34.123.174.136:10000/createuser", {
+                                fetch("http://35.188.19.111/createuser", {
                                     headers: {
                                         "Content-Type": "application/json"
                                     },
+                                    method: "POST",
                                     body: JSON.stringify({
                                         "first_name": first_name,
                                         "last_name": last_name,
@@ -345,7 +343,7 @@ export default function RegisterProfile() {
                                         "identification": {
                                             "date_of_birth": date_of_birth,
                                             "id": id,
-                                            "id_type": id_type
+                                            "id_type": "ssn"
                                         },
                                         "income": {
                                             "amount": "u150k",
