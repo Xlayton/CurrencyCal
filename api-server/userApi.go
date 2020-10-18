@@ -340,7 +340,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		resp, _ := json.Marshal(LoginResponse{200, "OK", foundUser})
-		req.Header.Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Write(resp)
 	} else {
 		w.Write([]byte("404 Page not found"))
