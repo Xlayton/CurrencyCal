@@ -65,9 +65,12 @@
           "samples": []
         },
         {
-          "name": "accountID",
+          "name": "accountIDintent",
           "slots": [],
           "samples": [
+            "what is my id",
+            "who am I",
+            "what is my identifier",
             "account identifier",
             "id account",
             "account id"
@@ -82,6 +85,10 @@
             }
           ],
           "samples": [
+            "set my pin to {number}",
+            "set my pin {number}",
+            "pin equals {number}",
+            "make my pin {number}",
             "set pin {number}"
           ]
         },
@@ -106,6 +113,8 @@
           "name": "Loginintent",
           "slots": [],
           "samples": [
+            "sign in",
+            "sign me in",
             "log me in coach",
             "already registered",
             "use login",
@@ -120,6 +129,9 @@
           "name": "checkbalanceintent",
           "slots": [],
           "samples": [
+            "why can't I afford anything",
+            "how much money do I have",
+            "how much dinero",
             "how much money",
             "what is my balance",
             "check my balance"
@@ -138,8 +150,15 @@
             }
           ],
           "samples": [
+            "send {user} money",
+            "give money to {user}",
+            "send {x} bucks",
+            "send {x} dollars",
+            "send {x}",
             "send {x} dollars to {user}",
-            "send money"
+            "send {x} bucks to {user}",
+            "send money",
+            "give money"
           ]
         },
         {
@@ -155,7 +174,15 @@
             }
           ],
           "samples": [
+            "{user} owes me money",
+            "{user} owes me {x} dollars",
+            "{user} owes me {x} bucks",
+            "get {x} dollars from {user}",
+            "get {x} bucks from {user}",
+            "ask for {x} dollars from {user}",
+            "ask for {x} bucks from {user}",
             "request {x} dollars from {user}",
+            "request {x} bucks from {user}",
             "request money"
           ]
         },
@@ -163,7 +190,12 @@
           "name": "transactionhistoryintent",
           "slots": [],
           "samples": [
-            "show transaction history"
+            "what did I waste money on",
+            "what did I buy last",
+            "where did my money go",
+            "why don't I have any money",
+            "show transaction history",
+            "what was my last transaction"
           ]
         }
       ],
