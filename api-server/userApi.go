@@ -178,6 +178,23 @@ type GalileoTransactionResp struct {
 	SourceTransactionID      int `json:"source_transaction_id"`
 }
 
+//GalileoTransaction :|
+type GalileoTransaction struct {
+	Amount             int       `json:"amount"`
+	Description        string    `json:"description"`
+	Timestamp          time.Time `json:"timestamp"`
+	TransactionID      int       `json:"transaction_id"`
+	TransactionSubtype string    `json:"transaction_subtype"`
+	TransactionType    string    `json:"transaction_type"`
+}
+
+//GalileoTransactionList fj
+type GalileoTransactionList struct {
+	HasMore      bool                 `json:"has_more"`
+	PageSize     int                  `json:"page_size"`
+	Transactions []GalileoTransaction `json:"transactions"`
+}
+
 func uploadImage(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
@@ -579,11 +596,84 @@ func doTransaction(w http.ResponseWriter, r *http.Request) {
 }
 
 func accountInfo(w http.ResponseWriter, r *http.Request) {
-
+	//Prepare header for json response
+	w.Header().Set("Content-Type", "application/json")
+	//Assure method is POST
+	if r.Method == "POST" {
+		var balanceField SingleUUID
+		err := json.NewDecoder(r.Body).Decode(&balanceField)
+		if err != nil {
+			http.Error(w, "400", http.StatusBadRequest)
+			return
+		}
+		client, ctx := getDbConnection()
+		defer client.Disconnect(ctx)
+		coll := client.Database("budgetbuddy").Collection("users")
+		var foundUser User
+		coll.FindOne(context.TODO(), bson.M{"uuid": balanceField.AccountUUID}).Decode(&foundUser)
+		send, _ := json.Marshal(foundUser)
+		w.Write(send)
+	}
 }
 
 func mostRecentTransaction(w http.ResponseWriter, r *http.Request) {
-
+	//Prepare header for json response
+	w.Header().Set("Content-Type", "application/json")
+	//Assure method is POST
+	if r.Method == "POST" {
+		var balanceField SingleUUID
+		err := json.NewDecoder(r.Body).Decode(&balanceField)
+		if err != nil {
+			http.Error(w, "400", http.StatusBadRequest)
+			return
+		}
+		log.Println(balanceField)
+		client, ctx := getDbConnection()
+		defer client.Disconnect(ctx)
+		coll := client.Database("budgetbuddy").Collection("users")
+		var foundUser User
+		coll.FindOne(context.TODO(), bson.M{"uuid": balanceField.AccountUUID}).Decode(&foundUser)
+		lastTransID := foundUser.Transactions[len(foundUser.Transactions)-1]
+		log.Println(lastTransID)
+		godotenv.Load()
+		apiuser := os.Getenv("APIUSER")
+		apipass := os.Getenv("APIPASSWORD")
+		reqBody, _ := json.Marshal(map[string]string{
+			"username": apiuser,
+			"password": apipass,
+		})
+		resp, err := http.Post("https://sandbox.galileo-ft.com/instant/v1/login", "application/json", bytes.NewBuffer(reqBody))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		var accessResp AccessResp
+		json.Unmarshal(body, &accessResp)
+		accountURL := fmt.Sprintf("https://sandbox.galileo-ft.com/instant/v1/cardholders/%d/accounts/%d/transactions", foundUser.CardholderID, foundUser.AccountID)
+		log.Println(accountURL)
+		req, _ := http.NewRequest("GET", accountURL, nil)
+		req.Header.Set("Authorization", "Bearer "+accessResp.AccessToken)
+		reqClient := &http.Client{}
+		res, _ := reqClient.Do(req)
+		body, _ = ioutil.ReadAll(res.Body)
+		var transactions GalileoTransactionList
+		json.Unmarshal(body, &transactions)
+		var sendTransaction GalileoTransaction
+		for _, trans := range transactions.Transactions {
+			if trans.TransactionID == lastTransID {
+				sendTransaction = trans
+				break
+			}
+		}
+		send, _ := json.Marshal(sendTransaction)
+		w.Write(send)
+	}
 }
 
 func assistantLogin(w http.ResponseWriter, r *http.Request) {
@@ -619,6 +709,8 @@ func main() {
 	http.HandleFunc("/getbalance", getBalance)
 	http.HandleFunc("/dotransaction", doTransaction)
 	http.HandleFunc("/assistlogin", assistantLogin)
+	http.HandleFunc("/accinfo", accountInfo)
+	http.HandleFunc("/mostrecenttrans", mostRecentTransaction)
 	log.Fatal(http.ListenAndServe(":10000", nil))
 
 }
