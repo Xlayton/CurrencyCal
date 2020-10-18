@@ -198,6 +198,8 @@ type GalileoTransactionList struct {
 func uploadImage(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Checks for POST method, otherwise responds with 404
 	if r.Method == "POST" {
 		//Parses data given as multipart form data(needed for profile image)
@@ -232,6 +234,7 @@ func uploadImage(w http.ResponseWriter, r *http.Request) {
 func createUser(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Checks for POST method, otherwise responds with 404
 	if r.Method == "POST" {
@@ -303,6 +306,8 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 func getUser(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Assure method is GET
 	if r.Method == "GET" {
 		//Parse data from params
@@ -350,6 +355,8 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 func updateUser(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Assure method is PUT
 	if r.Method == "PUT" {
 		//Parse data from body
@@ -416,6 +423,8 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 func deleteUser(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Assure method is DELETE
 	if r.Method == "DELETE" {
 		//Parse data from params
@@ -453,6 +462,8 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 func addContact(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Assure method is POST
 	if r.Method == "POST" {
 		var contactFields DoubleUUID
@@ -534,6 +545,8 @@ func getBalance(w http.ResponseWriter, r *http.Request) {
 func doTransaction(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Assure method is POST
 	if r.Method == "POST" {
 		var contactFields DoubleUUID
@@ -602,6 +615,8 @@ func doTransaction(w http.ResponseWriter, r *http.Request) {
 func accountInfo(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Assure method is POST
 	if r.Method == "POST" {
 		var balanceField SingleUUID
@@ -623,6 +638,8 @@ func accountInfo(w http.ResponseWriter, r *http.Request) {
 func mostRecentTransaction(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Assure method is POST
 	if r.Method == "POST" {
 		var balanceField SingleUUID
@@ -683,6 +700,8 @@ func mostRecentTransaction(w http.ResponseWriter, r *http.Request) {
 func assistantLogin(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Assure method is POST
 	if r.Method == "POST" {
 		var assistLogin AssistLogin
