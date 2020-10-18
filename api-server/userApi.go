@@ -479,6 +479,8 @@ func addContact(w http.ResponseWriter, r *http.Request) {
 func getBalance(w http.ResponseWriter, r *http.Request) {
 	//Prepare header for json response
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//Assure method is POST
 	if r.Method == "POST" {
 		var balanceField SingleUUID
@@ -693,7 +695,6 @@ func assistantLogin(w http.ResponseWriter, r *http.Request) {
 		defer client.Disconnect(ctx)
 		coll := client.Database("budgetbuddy").Collection("users")
 		var user User
-		log.Println(assistLogin.CardholderID)
 		coll.FindOne(context.TODO(), bson.M{"cardholderid": assistLogin.CardholderID}).Decode(&user)
 		send, _ := json.Marshal(map[string]string{
 			"user_uuid": user.UUID,
